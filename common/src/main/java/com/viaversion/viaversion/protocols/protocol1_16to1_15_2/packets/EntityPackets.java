@@ -26,16 +26,16 @@ import com.github.steveice10.opennbt.tag.builtin.LongTag;
 import com.github.steveice10.opennbt.tag.builtin.StringTag;
 import com.viaversion.viaversion.api.Via;
 import com.viaversion.viaversion.api.minecraft.entities.Entity1_16Types;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.protocol.remapper.PacketHandler;
 import com.viaversion.viaversion.api.protocol.remapper.PacketRemapper;
 import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.types.version.Types1_14;
+import com.viaversion.viaversion.api.type.types.version.Types1_16;
 import com.viaversion.viaversion.protocols.protocol1_15to1_14_4.ClientboundPackets1_15;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ClientboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.Protocol1_16To1_15_2;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.ServerboundPackets1_16;
 import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.metadata.MetadataRewriter1_16To1_15_2;
-import com.viaversion.viaversion.protocols.protocol1_16to1_15_2.storage.InventoryTracker1_16;
 
 import java.util.UUID;
 
@@ -174,7 +174,7 @@ public class EntityPackets {
         metadataRewriter.registerTrackerWithData(ClientboundPackets1_15.SPAWN_ENTITY, Entity1_16Types.FALLING_BLOCK);
         metadataRewriter.registerTracker(ClientboundPackets1_15.SPAWN_MOB);
         metadataRewriter.registerTracker(ClientboundPackets1_15.SPAWN_PLAYER, Entity1_16Types.PLAYER);
-        metadataRewriter.registerMetadataRewriter(ClientboundPackets1_15.ENTITY_METADATA, Types1_14.METADATA_LIST);
+        metadataRewriter.registerMetadataRewriter(ClientboundPackets1_15.ENTITY_METADATA, Types1_14.METADATA_LIST, Types1_16.METADATA_LIST);
         metadataRewriter.registerRemoveEntities(ClientboundPackets1_15.DESTROY_ENTITIES);
 
         protocol.registerClientbound(ClientboundPackets1_15.RESPAWN, new PacketRemapper() {
@@ -262,19 +262,6 @@ public class EntityPackets {
                     }
                     if (size != actualSize) {
                         wrapper.set(Type.INT, 0, actualSize);
-                    }
-                });
-            }
-        });
-
-        protocol.registerServerbound(ServerboundPackets1_16.ANIMATION, new PacketRemapper() {
-            @Override
-            public void registerMap() {
-                handler(wrapper -> {
-                    InventoryTracker1_16 inventoryTracker = wrapper.user().get(InventoryTracker1_16.class);
-                    // Don't send an arm swing if the player is switching between inventories.
-                    if (inventoryTracker.getInventory() != -1) {
-                        wrapper.cancel();
                     }
                 });
             }
